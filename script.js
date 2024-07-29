@@ -1,16 +1,48 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startButton = document.getElementById('startButton');
+const restartButton = document.getElementById('restartButton');
+const difficultySelect = document.getElementById('difficultySelect');
+const finalScoreElement = document.getElementById('finalScore');
 
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
 
-let snake = [
-    {x: 10, y: 10},
-];
-let food = {x: 15, y: 15};
-let dx = 0;
-let dy = 0;
-let score = 0;
+let snake, food, dx, dy, score, gameSpeed, gameLoop;
+
+const difficulties = {
+    easy: 150,
+    medium: 100,
+    hard: 50
+};
+
+function initGame() {
+    snake = [{ x: 10, y: 10 }];
+    food = generateFood();
+    dx = 0;
+    dy = 0;
+    score = 0;
+    gameSpeed = difficulties[difficultySelect.value];
+}
+
+function startGame() {
+    initGame();
+    startScreen.style.display = 'none';
+    gameLoop = setInterval(drawGame, gameSpeed);
+}
+
+function gameOver() {
+    clearInterval(gameLoop);
+    finalScoreElement.textContent = `Final Score: ${score}`;
+    gameOverScreen.style.display = 'flex';
+}
+
+function restartGame() {
+    gameOverScreen.style.display = 'none';
+    startGame();
+}
 
 function drawGame() {
     clearCanvas();
@@ -27,12 +59,12 @@ function clearCanvas() {
 }
 
 function moveSnake() {
-    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
         score++;
-        generateFood();
+        food = generateFood();
     } else {
         snake.pop();
     }
@@ -51,30 +83,28 @@ function drawFood() {
 }
 
 function generateFood() {
-    food.x = Math.floor(Math.random() * tileCount);
-    food.y = Math.floor(Math.random() * tileCount);
+    let newFood;
+    do {
+        newFood = {
+            x: Math.floor(Math.random() * tileCount),
+            y: Math.floor(Math.random() * tileCount)
+        };
+    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+    return newFood;
 }
 
 function checkCollision() {
     const head = snake[0];
 
     if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-        resetGame();
+        gameOver();
     }
 
     for (let i = 1; i < snake.length; i++) {
         if (head.x === snake[i].x && head.y === snake[i].y) {
-            resetGame();
+            gameOver();
         }
     }
-}
-
-function resetGame() {
-    snake = [{x: 10, y: 10}];
-    food = {x: 15, y: 15};
-    dx = 0;
-    dy = 0;
-    score = 0;
 }
 
 function drawScore() {
@@ -84,7 +114,7 @@ function drawScore() {
 }
 
 document.addEventListener('keydown', (e) => {
-    switch(e.key) {
+    switch (e.key) {
         case 'ArrowUp':
             if (dy === 0) { dx = 0; dy = -1; }
             break;
@@ -100,4 +130,5 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-setInterval(drawGame, 100);
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', restartGame);

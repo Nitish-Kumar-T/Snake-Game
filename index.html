@@ -7,7 +7,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="startScreen" class="overlay">
+            <h1>Snake Game</h1>
+            <button id="startButton">Start Game</button>
+            <select id="difficultySelect">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div id="gameOverScreen" class="overlay">
+            <h2>Game Over</h2>
+            <p id="finalScore"></p>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
